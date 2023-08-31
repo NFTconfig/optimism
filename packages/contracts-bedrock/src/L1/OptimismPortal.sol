@@ -397,7 +397,9 @@ contract OptimismPortal is Initializable, ResourceMetering, Semver {
         // transactions are not gossipped over the p2p network.
         require(_data.length <= 120_000, "OptimismPortal: data too large");
 
-        IZkBridgeNativeTokenVault(nativeTokenVault).deposit{value: _value}();
+        if (nativeTokenVault != address(0)) {
+            IZkBridgeNativeTokenVault(nativeTokenVault).deposit{value: _value}();
+        }
 
         // Transform the from-address to its alias if the caller is a contract.
         address from = msg.sender;
