@@ -845,4 +845,19 @@ contract Deploy is Deployer {
             );
         }
     }
+
+    function setVaultForOptimismPortal(
+        address payable optimismPortalProxy_,
+        address nativeTokenVaultProxy_
+    )
+        public
+        broadcast
+    {
+        OptimismPortal portal = OptimismPortal(optimismPortalProxy_);
+
+        if (nativeTokenVaultProxy_ != portal.nativeTokenVault()) {
+            portal.setVault(nativeTokenVaultProxy_);
+        }
+        require(portal.nativeTokenVault() == nativeTokenVaultProxy_);
+    }
 }
