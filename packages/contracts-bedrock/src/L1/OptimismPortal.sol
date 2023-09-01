@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
-import {SafeCall} from "../libraries/SafeCall.sol";
-import {L2OutputOracle} from "./L2OutputOracle.sol";
-import {SystemConfig} from "./SystemConfig.sol";
-import {Constants} from "../libraries/Constants.sol";
-import {Types} from "../libraries/Types.sol";
-import {Hashing} from "../libraries/Hashing.sol";
-import {SecureMerkleTrie} from "../libraries/trie/SecureMerkleTrie.sol";
-import {AddressAliasHelper} from "../vendor/AddressAliasHelper.sol";
-import {ResourceMetering} from "./ResourceMetering.sol";
-import {Semver} from "../universal/Semver.sol";
+import { Initializable } from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import { SafeCall } from "../libraries/SafeCall.sol";
+import { L2OutputOracle } from "./L2OutputOracle.sol";
+import { SystemConfig } from "./SystemConfig.sol";
+import { Constants } from "../libraries/Constants.sol";
+import { Types } from "../libraries/Types.sol";
+import { Hashing } from "../libraries/Hashing.sol";
+import { SecureMerkleTrie } from "../libraries/trie/SecureMerkleTrie.sol";
+import { AddressAliasHelper } from "../vendor/AddressAliasHelper.sol";
+import { ResourceMetering } from "./ResourceMetering.sol";
+import { Semver } from "../universal/Semver.sol";
 
 import "../universal/IZkBridgeNativeTokenVault.sol";
 
@@ -121,7 +121,12 @@ contract OptimismPortal is Initializable, ResourceMetering, Semver {
     /// @param _guardian Address that can pause withdrawals.
     /// @param _paused Sets the contract's pausability state.
     /// @param _systemConfig Address of the SystemConfig contract.
-    function initialize(L2OutputOracle _l2Oracle, address _guardian, SystemConfig _systemConfig, bool _paused)
+    function initialize(
+        L2OutputOracle _l2Oracle,
+        address _guardian,
+        SystemConfig _systemConfig,
+        bool _paused
+    )
         public
         reinitializer(2)
     {
@@ -210,7 +215,10 @@ contract OptimismPortal is Initializable, ResourceMetering, Semver {
         uint256 _l2OutputIndex,
         Types.OutputRootProof calldata _outputRootProof,
         bytes[] calldata _withdrawalProof
-    ) external whenNotPaused {
+    )
+        external
+        whenNotPaused
+    {
         // Prevent users from creating a deposit transaction where this address is the message
         // sender on L2. Because this is checked here, we do not need to check again in
         // `finalizeWithdrawalTransaction`.
@@ -376,7 +384,13 @@ contract OptimismPortal is Initializable, ResourceMetering, Semver {
     /// @param _gasLimit   Amount of L2 gas to purchase by burning gas on L1.
     /// @param _isCreation Whether or not the transaction is a contract creation.
     /// @param _data       Data to trigger the recipient with.
-    function depositTransaction(address _to, uint256 _value, uint64 _gasLimit, bool _isCreation, bytes memory _data)
+    function depositTransaction(
+        address _to,
+        uint256 _value,
+        uint64 _gasLimit,
+        bool _isCreation,
+        bytes memory _data
+    )
         public
         payable
         metered(_gasLimit)
@@ -398,7 +412,7 @@ contract OptimismPortal is Initializable, ResourceMetering, Semver {
         require(_data.length <= 120_000, "OptimismPortal: data too large");
 
         if (nativeTokenVault != address(0)) {
-            IZkBridgeNativeTokenVault(nativeTokenVault).deposit{value: _value}();
+            IZkBridgeNativeTokenVault(nativeTokenVault).deposit{ value: _value }();
         }
 
         // Transform the from-address to its alias if the caller is a contract.
@@ -425,7 +439,11 @@ contract OptimismPortal is Initializable, ResourceMetering, Semver {
         uint64 _gasLimit,
         bool _isCreation,
         bytes memory _data
-    ) public payable metered(_gasLimit) {
+    )
+        public
+        payable
+        metered(_gasLimit)
+    {
         require(msg.sender == sharedSequencerAddr, "OptimismPortal: Only Sequencer can call this function");
 
         // Just to be safe, make sure that people specify address(0) as the target when doing
@@ -478,6 +496,7 @@ contract OptimismPortal is Initializable, ResourceMetering, Semver {
         require(msg.sender == guardian, "OptimismPortal: only guardian can set vault");
 
         nativeTokenVault = _vault;
+        emit NewVault(nativeTokenVault);
     }
 
     function setSharedSequencer(address _addr) external {
