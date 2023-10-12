@@ -116,6 +116,13 @@ abstract contract Deployer is Script {
 
             string memory deployTx = _getDeployTransactionByContractAddress(addr);
             string memory contractName = _getContractNameFromDeployTransaction(deployTx);
+            if (
+                keccak256(abi.encodePacked(contractName)) == keccak256(abi.encodePacked("null"))
+                    && keccak256(abi.encodePacked(deploymentName)) == keccak256(abi.encodePacked("ProxyAdmin"))
+            ) {
+                contractName = "ProxyAdmin";
+            }
+
             console.log("Syncing deployment %s: contract %s", deploymentName, contractName);
 
             string[] memory args = getDeployTransactionConstructorArguments(deployTx);
